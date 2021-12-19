@@ -1,2 +1,1 @@
-﻿  DBSCANCPP.cpp
-  DBSCANCPP.vcxproj -> C:\DBSCAN_CPP\DBSCANCPP\Debug\DBSCANCPP.exe
+﻿cl : command line error D8016: '/O2' and '/RTC1' command-line options are incompatible

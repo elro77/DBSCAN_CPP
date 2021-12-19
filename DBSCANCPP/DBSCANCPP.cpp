@@ -6,13 +6,27 @@
 #include <fstream>
 #include<vector>
 #include<string>
+#include "AlgorithmDBSCAN.h"
+
+/* ============ Version comments:
+* 
+* Version 1.00 , naive implementation of DBSCAN:
+* 2000 points = 70 seconds with (eps = 3, minPts = 2)
+* 2000 points = 70 seconds with (eps = 4, minPts = 2)
+* 2000 points = 73 seconds with (eps = 5, minPts = 2)
+* 
+* 5000 points = FOREVER seconds with (eps = 3, minPts = 2)
+* 5000 points = FOREVER seconds with (eps = 4, minPts = 2)
+* 5000 points = FOREVER seconds with (eps = 5, minPts = 2)
+*/
+
 using namespace std::chrono;
 using namespace std;
 
 
 vector<double> readLineData(string line)
 {
-	vector<double> rowData;
+	std::vector<double> rowData;
 	std::stringstream stringStream(line);
 	double value;
 	while (stringStream >> value) {
@@ -29,9 +43,11 @@ int main()
 {
     int row = 1, col = 1;
 	int count = 0;
-	int amountOfPoints = 10000;
+	int amountOfPoints = 5000;
     std::string line;
     std::vector<std::vector<double>> dataset;
+	AlgorithmDBSCAN* algoDBSCAN;
+	std::map<int, std::vector<int>> clustersMap;
 
 
     cout << "Welcome!\n";
@@ -58,9 +74,59 @@ int main()
 	}
 	auto stop = high_resolution_clock::now();
 	seconds duration = duration_cast<seconds>(stop - start);
-	cout << "Reading time last: " << duration.count() << "seconds" << endl;
-    
-        
+	cout << "Reading time last: " << duration.count() << " seconds" << endl;
+
+
+
+	start = high_resolution_clock::now();
+
+	algoDBSCAN = new AlgorithmDBSCAN(5, 2, dataset.size());
+	auto resultClusters = algoDBSCAN->startClustering(dataset);
+
+	stop = high_resolution_clock::now();
+	duration = duration_cast<seconds>(stop - start);
+	cout << "running DBSCAN time : " << duration.count() << " seconds" << endl;
+
+
+	//print clusters
+	for (int i = 0; i < resultClusters.size(); i++)
+	{
+		long cnt = 0;
+		int clusterNumber = resultClusters[i];
+		if (clusterNumber != -1)
+		{
+			cnt++;
+			auto it = clustersMap.find(clusterNumber);
+			if (it == clustersMap.end())
+			{
+				std::vector<int> indexes;
+				clustersMap.insert({ clusterNumber , indexes });
+			}
+			clustersMap.find(clusterNumber)->second.push_back(i);
+
+		}
+	}
+
+	if (clustersMap.size() != 0)
+	{
+		for (std::map<int, std::vector<int>>::iterator iter = clustersMap.begin(); iter != clustersMap.end(); ++iter)
+		{
+			int key = iter->first;
+			std::vector<int> indexes = iter->second;
+			std::string str;
+			for (int i = 0; i < indexes.size(); i++)
+			{
+				str += to_string(indexes[i]) + ", ";
+			}
+			
+			cout << "( "<<key << " ) : " << str << "\n\n\n";
+		}
+	}
+	else
+	{
+		cout << "There is no clustering at all\n";
+	}
+
     return 0;
 }
 
@@ -70,5 +136,5 @@ int main()
    do stuf here()
    auto stop = high_resolution_clock::now();
    seconds duration = duration_cast<seconds>(stop - start);
-   cout << "Reading time last: " << duration.count() << "seconds" << endl;
+   cout << "Reading time last: " << duration.count() << " seconds" << endl;
  */
