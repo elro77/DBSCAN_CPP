@@ -1,5 +1,2 @@
-﻿  AlgorithmDBSCAN.cpp
-C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(12,20): warning C4018: '<': signed/unsigned mismatch
-  DBSCANCPP.cpp
-  Generating Code...
+﻿  DBSCANCPP.cpp
   DBSCANCPP.vcxproj -> C:\DBSCAN_CPP\DBSCANCPP\Debug\DBSCANCPP.exe
