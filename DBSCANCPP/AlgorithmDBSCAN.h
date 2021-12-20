@@ -1,6 +1,7 @@
 #pragma once
 #include<iostream>
 #include<vector>
+#include<set>
 #include<map>
 #include <chrono> // for time meassure 
 
@@ -17,7 +18,7 @@ private:
 	std::vector<int> m_clusters;
 	std::vector<bool> m_noisePoints;
 	std::vector<bool> m_undefinedPoints;
-	std::vector<int> m_actualKeys;
+	std::set<int> m_actualKeys;
 	
 
 	std::map<int, std::vector<int>> m_connectionsMap;
@@ -37,6 +38,9 @@ private:
 	void connectNodes();
 	void initGraph();
 	inline int calcAvg(std::vector<double> vec);
+	inline bool isKeyActual(int key);
+	template<class T>
+	inline void uniteVectors(std::vector<T> v1, std::vector<T> v2);
 };
 
 /*
