@@ -6,6 +6,7 @@
 #include <fstream>
 #include<vector>
 #include<string>
+#include<thread>
 #include "AlgorithmDBSCAN.h"
 
 /* ============ Version comments:
@@ -80,7 +81,7 @@ int main()
 
 	start = high_resolution_clock::now();
 
-	algoDBSCAN = new AlgorithmDBSCAN(5, 2, dataset.size());
+	algoDBSCAN = new AlgorithmDBSCAN(4, 3, dataset.size());
 	auto resultClusters = algoDBSCAN->startClustering(dataset);
 
 	stop = high_resolution_clock::now();

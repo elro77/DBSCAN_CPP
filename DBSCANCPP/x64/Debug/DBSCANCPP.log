@@ -1,12 +1,15 @@
 ﻿  AlgorithmDBSCAN.cpp
 C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(9,20): warning C4018: '<': signed/unsigned mismatch
-C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(108,16): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(155,16): warning C4244: '+=': conversion from '_Ty' to 'int', possible loss of data
+C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(98,16): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(270,16): warning C4244: '+=': conversion from '_Ty' to 'int', possible loss of data
           with
           [
               _Ty=double
           ]
-C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(182,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(115): message : see reference to function template instantiation 'void AlgorithmDBSCAN::uniteVectors<int>(std::vector<int,std::allocator<int>>,std::vector<int,std::allocator<int>>)' being compiled
-C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(193,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(297,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(105): message : see reference to function template instantiation 'void AlgorithmDBSCAN::uniteVectors<int>(std::vector<int,std::allocator<int>>,std::vector<int,std::allocator<int>>)' being compiled
+C:\DBSCAN_CPP\DBSCANCPP\AlgorithmDBSCAN.cpp(308,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  DBSCANCPP.cpp
+C:\DBSCAN_CPP\DBSCANCPP\DBSCANCPP.cpp(84,56): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
+  Generating Code...
   DBSCANCPP.vcxproj -> C:\DBSCAN_CPP\DBSCANCPP\x64\Debug\DBSCANCPP.exe
