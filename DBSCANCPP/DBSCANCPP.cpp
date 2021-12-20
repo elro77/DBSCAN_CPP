@@ -28,6 +28,17 @@
 * 5000 points = 13 seconds with (eps = 3, minPts = 2)
 * 5000 points = 87 seconds with (eps = 4, minPts = 2)
 * 5000 points = 92 seconds with (eps = 5, minPts = 2)
+* 
+* 
+* * ==Version 1.02 , after optimization of the IDE:
+* reading time of 100,000 points is 7 seconds
+* 2000 points = 0 seconds with (eps = 3, minPts = 2)
+* 2000 points = 1 seconds with (eps = 4, minPts = 2)
+* 2000 points = 1 seconds with (eps = 5, minPts = 2)
+* 
+* 5000 points = 0 seconds with (eps = 3, minPts = 2)
+* 5000 points = 7 seconds with (eps = 4, minPts = 2)
+* 5000 points = 7 seconds with (eps = 5, minPts = 2)
 */
 
 using namespace std::chrono;
@@ -90,7 +101,7 @@ int main()
 
 	start = high_resolution_clock::now();
 
-	algoDBSCAN = new AlgorithmDBSCAN(3, 2, dataset.size());
+	algoDBSCAN = new AlgorithmDBSCAN(5, 2, dataset.size());
 	auto resultClusters = algoDBSCAN->startClustering(dataset);
 
 	stop = high_resolution_clock::now();

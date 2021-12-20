@@ -1,0 +1,8 @@
+﻿  DBSCANCPP.cpp
+C:\DBSCAN_CPP\DBSCANCPP\DBSCANCPP.cpp(104,56): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
+  Generating code
+  1 of 864 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  DBSCANCPP.vcxproj -> C:\DBSCAN_CPP\DBSCANCPP\x64\Release\DBSCANCPP.exe
