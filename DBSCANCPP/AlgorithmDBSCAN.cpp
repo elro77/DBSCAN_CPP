@@ -16,7 +16,7 @@ AlgorithmDBSCAN::AlgorithmDBSCAN(const float eps_, const unsigned int minPits_, 
 
 std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double>> dataset)
 {
-	//createGraph();
+	createGraph(dataset);
 	for (int pIndex = 0; pIndex < dataset.size(); pIndex++)
 	{
 		std::cout << "running pIndex  : " << pIndex << std::endl;
@@ -64,7 +64,7 @@ std::vector<int> AlgorithmDBSCAN::rangeQuery(std::vector<std::vector<double>> da
 	std::vector<int> neighbors;
 	for (int qIndex = 0; qIndex < dataset.size(); qIndex++)
 	{
-		if (calcDistance(dataset[pIndex], dataset[qIndex]) <= m_eps)
+		if (qIndex == pIndex || calcDistance(dataset[pIndex], dataset[qIndex]) <= m_eps)
 		{
 			neighbors.push_back(qIndex);
 		}
@@ -82,18 +82,47 @@ double AlgorithmDBSCAN::calcDistance(std::vector<double> p, std::vector<double> 
 	}
 	return pow(sum, 0.5);
 }
-void AlgorithmDBSCAN::createGraph()
+void AlgorithmDBSCAN::createGraph(std::vector<std::vector<double>> dataset)
 {
-	initgridDictionaryVectors();
+	auto start = high_resolution_clock::now();
+	//
+	initgridDictionaryVectors(dataset);
+	//
+	auto stop = high_resolution_clock::now();
+	seconds duration = duration_cast<seconds>(stop - start);
+	cout << "initgridDictionaryVectors() time last: " << duration.count() << " seconds" << endl;
+
+	start = high_resolution_clock::now();
+	//
 	initGraph();
+	//
+	stop = high_resolution_clock::now();
+	duration = duration_cast<seconds>(stop - start);
+	cout << "initGraph() time last: " << duration.count() << " seconds" << endl;
 
 }
 void AlgorithmDBSCAN::zipGrid()
 {
 
 }
-void AlgorithmDBSCAN::initgridDictionaryVectors()
+void AlgorithmDBSCAN::initgridDictionaryVectors(std::vector<std::vector<double>> dataset)
 {
+	int currentKey;
+	for (int pIndex = 0; pIndex < dataset.size(); pIndex++)
+	{
+		currentKey = calcAvg(dataset[pIndex]);
+		m_actualKeys.push_back(currentKey);
+		auto it = m_gridDictionaryVectors.find(currentKey);
+		if (it == m_gridDictionaryVectors.end())
+		{
+			std::vector<int> indexes;
+			std::vector<std::vector<double>> vectors;
+			m_gridDictionaryIndexes.insert({ currentKey ,indexes });
+			m_gridDictionaryVectors.insert({ currentKey ,vectors });
+		}
+		m_gridDictionaryIndexes.find(currentKey)->second.push_back(pIndex);
+		m_gridDictionaryVectors.find(currentKey)->second.push_back(dataset[pIndex]);
+	}
 
 }
 void AlgorithmDBSCAN::connectNodes()
@@ -103,5 +132,15 @@ void AlgorithmDBSCAN::connectNodes()
 void AlgorithmDBSCAN::initGraph()
 {
 
+}
+
+int AlgorithmDBSCAN::calcAvg(std::vector<double> vec)
+{
+	int sum = 0;
+	for (int i = 0; i < vec.size(); i++)
+	{
+		sum += vec[i];
+	}
+	return (int)(sum / vec.size());
 }
 
