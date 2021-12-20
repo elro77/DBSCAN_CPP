@@ -11,7 +11,7 @@
 
 /* ============ Version comments:
 * 
-* Version 1.00 , naive implementation of DBSCAN:
+* ==Version 1.00 , naive implementation of DBSCAN:
 * 2000 points = 70 seconds with (eps = 3, minPts = 2)
 * 2000 points = 70 seconds with (eps = 4, minPts = 2)
 * 2000 points = 73 seconds with (eps = 5, minPts = 2)
@@ -19,6 +19,15 @@
 * 5000 points = FOREVER seconds with (eps = 3, minPts = 2)
 * 5000 points = FOREVER seconds with (eps = 4, minPts = 2)
 * 5000 points = FOREVER seconds with (eps = 5, minPts = 2)
+* 
+* ==Version 1.01 , using threads and grid as python:
+* 2000 points = 14 seconds with (eps = 3, minPts = 2)
+* 2000 points = 14 seconds with (eps = 4, minPts = 2)
+* 2000 points = 14 seconds with (eps = 5, minPts = 2)
+* 
+* 5000 points = 13 seconds with (eps = 3, minPts = 2)
+* 5000 points = 87 seconds with (eps = 4, minPts = 2)
+* 5000 points = 92 seconds with (eps = 5, minPts = 2)
 */
 
 using namespace std::chrono;
@@ -44,7 +53,7 @@ int main()
 {
     int row = 1, col = 1;
 	int count = 0;
-	int amountOfPoints = 5000;
+	int amountOfPoints = 2000;
     std::string line;
     std::vector<std::vector<double>> dataset;
 	AlgorithmDBSCAN* algoDBSCAN;
@@ -81,7 +90,7 @@ int main()
 
 	start = high_resolution_clock::now();
 
-	algoDBSCAN = new AlgorithmDBSCAN(4, 3, dataset.size());
+	algoDBSCAN = new AlgorithmDBSCAN(3, 2, dataset.size());
 	auto resultClusters = algoDBSCAN->startClustering(dataset);
 
 	stop = high_resolution_clock::now();

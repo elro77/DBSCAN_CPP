@@ -19,7 +19,10 @@ std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double
 	createGraph(dataset);
 	for (int pIndex = 0; pIndex < dataset.size(); pIndex++)
 	{
-		std::cout << "running pIndex  : " << pIndex << std::endl;
+		//std::cout << "running pIndex  : " << pIndex << std::endl;
+		auto it = m_connectionsMap.find(pIndex);
+		if (it == m_connectionsMap.end())
+			continue;
 		if (m_undefinedPoints[pIndex] == false)
 		{
 			continue;
@@ -28,6 +31,7 @@ std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double
 		if (neighbors.size() < m_minPts)
 		{
 			m_noisePoints[pIndex] = true;
+			m_undefinedPoints[pIndex] = false;
 			continue;
 		}
 		m_currentCluster++;
@@ -61,6 +65,7 @@ std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double
 
 std::vector<int> AlgorithmDBSCAN::rangeQuery(std::vector<std::vector<double>> dataset, int pIndex)
 {
+	/*
 	std::vector<int> neighbors;
 	for (int qIndex = 0; qIndex < dataset.size(); qIndex++)
 	{
@@ -69,7 +74,8 @@ std::vector<int> AlgorithmDBSCAN::rangeQuery(std::vector<std::vector<double>> da
 			neighbors.push_back(qIndex);
 		}
 	}
-	return neighbors;
+	*/
+	return m_connectionsMap.find(pIndex)->second;
 }
 
 void AlgorithmDBSCAN::createGraph(std::vector<std::vector<double>> dataset)
@@ -230,8 +236,6 @@ void AlgorithmDBSCAN::initGraph()
 					m_connectionsMap.insert({ key , connections });
 			}
 		}
-
-		int x = 0;
 
 		auto stop = high_resolution_clock::now();
 		seconds duration = duration_cast<seconds>(stop - start);
