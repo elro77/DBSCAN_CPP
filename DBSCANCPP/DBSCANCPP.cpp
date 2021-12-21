@@ -39,6 +39,30 @@
 * 5000 points = 0 seconds with (eps = 3, minPts = 2)
 * 5000 points = 7 seconds with (eps = 4, minPts = 2)
 * 5000 points = 7 seconds with (eps = 5, minPts = 2)
+* 
+* 
+* 
+*  ==Version 1.03 , upgrade running on graph using arrays and removing rangeQuery func even when its inline:
+* 2000 points = 0 seconds with (eps = 3, minPts = 2)
+* 2000 points = 0 seconds with (eps = 4, minPts = 2)
+* 2000 points = 0 seconds with (eps = 5, minPts = 2)
+* 				
+* 5000 points = 0 seconds with (eps = 3, minPts = 2)
+* 5000 points = 0 seconds with (eps = 4, minPts = 2)
+* 5000 points = 0 seconds with (eps = 5, minPts = 2)
+* 
+* 10000 points = 1 seconds with (eps = 3, minPts = 2)
+* 10000 points = 1 seconds with (eps = 4, minPts = 2)
+* 10000 points = 1 seconds with (eps = 5, minPts = 2)
+* 
+* 50000 points = 38 seconds with (eps = 3, minPts = 2)
+* 50000 points = 38 seconds with (eps = 4, minPts = 2)
+* 50000 points = 38 seconds with (eps = 5, minPts = 2)
+* 
+* 100000 points = 158 seconds with (eps = 3, minPts = 2)
+* 100000 points = 158 seconds with (eps = 4, minPts = 2)
+* 100000 points = 158 seconds with (eps = 5, minPts = 2)
+* 
 */
 
 using namespace std::chrono;
@@ -64,7 +88,7 @@ int main()
 {
     int row = 1, col = 1;
 	int count = 0;
-	int amountOfPoints = 2000;
+	int amountOfPoints = 100000;
     std::string line;
     std::vector<std::vector<double>> dataset;
 	AlgorithmDBSCAN* algoDBSCAN;

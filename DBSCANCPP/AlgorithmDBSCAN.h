@@ -16,6 +16,9 @@ private:
 	unsigned int m_minPts;
 	int m_currentCluster;
 
+	std::vector<std::vector<int>> m_connectionsArray;
+	std::vector<bool> m_isInConnetions;
+
 	std::vector<int> m_clusters;
 	std::vector<bool> m_noisePoints;
 	std::vector<bool> m_undefinedPoints;
@@ -31,7 +34,7 @@ public:
 
 	std::vector<int> startClustering(std::vector<std::vector<double>> dataset);
 private:
-	std::vector<int> rangeQuery(std::vector<std::vector<double>> dataset, int pIndex);
+	inline std::vector<int> rangeQuery(std::vector<std::vector<double>> dataset, int pIndex);
 	inline static double calcDistance(std::vector<double> p, std::vector<double> q);
 	void createGraph(std::vector<std::vector<double>> dataset);
 	void zipGrid();

@@ -11,6 +11,10 @@ AlgorithmDBSCAN::AlgorithmDBSCAN(const double eps_, const unsigned int minPits_,
 		m_clusters.push_back(-1);
 		m_noisePoints.push_back(false);
 		m_undefinedPoints.push_back(true);
+
+		m_isInConnetions.push_back(false);
+		std::vector<int> indexes;
+		m_connectionsArray.push_back(indexes);
 	}
 }
 
@@ -20,14 +24,13 @@ std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double
 	for (int pIndex = 0; pIndex < dataset.size(); pIndex++)
 	{
 		//std::cout << "running pIndex  : " << pIndex << std::endl;
-		auto it = m_connectionsMap.find(pIndex);
-		if (it == m_connectionsMap.end())
+		if (!m_isInConnetions[pIndex])
 			continue;
 		if (m_undefinedPoints[pIndex] == false)
 		{
 			continue;
 		}
-		auto neighbors = rangeQuery(dataset, pIndex);
+		auto neighbors = m_connectionsArray[pIndex];
 		if (neighbors.size() < m_minPts)
 		{
 			m_noisePoints[pIndex] = true;
@@ -51,7 +54,7 @@ std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double
 				continue;
 			m_clusters[qIndex] = m_currentCluster;
 			m_undefinedPoints[qIndex] = false;
-			auto qNeighbors = rangeQuery(dataset, qIndex);
+			auto qNeighbors = m_connectionsArray[qIndex];
 			if (qNeighbors.size() >= m_minPts)
 			{
 				for (auto value : qNeighbors)
@@ -63,7 +66,7 @@ std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double
 	return m_clusters;
 }
 
-std::vector<int> AlgorithmDBSCAN::rangeQuery(std::vector<std::vector<double>> dataset, int pIndex)
+inline std::vector<int> AlgorithmDBSCAN::rangeQuery(std::vector<std::vector<double>> dataset, int pIndex)
 {
 	/*
 	std::vector<int> neighbors;
@@ -75,7 +78,7 @@ std::vector<int> AlgorithmDBSCAN::rangeQuery(std::vector<std::vector<double>> da
 		}
 	}
 	*/
-	return m_connectionsMap.find(pIndex)->second;
+	return m_connectionsArray[pIndex];
 }
 
 void AlgorithmDBSCAN::createGraph(std::vector<std::vector<double>> dataset)
@@ -232,8 +235,14 @@ void AlgorithmDBSCAN::initGraph()
 			{
 				int key = iter->first;
 				std::vector<int> connections = iter->second;
-				if(connections.size() >= m_minPts)
-					m_connectionsMap.insert({ key , connections });
+				if (connections.size() >= m_minPts)
+				{
+					//m_connectionsMap.insert({ key , connections });
+					m_isInConnetions[key] = true;
+					m_connectionsArray[key] = connections;
+
+				}
+					
 			}
 		}
 
