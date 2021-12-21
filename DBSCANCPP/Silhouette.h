@@ -26,7 +26,7 @@ private:
 	void createClustersDictionaryIndexes(std::vector<std::vector<double>> dataset, std::vector<int> clusters);
 	void createClusterGravityPoint(std::vector<std::vector<double>> dataset);
 	void findClusterPairs();
-	void calculateAvgSilhoueteOfCluster();
+	double calculateAvgSilhoueteOfCluster(int clusterNumber);
 	void calculateClusterAValue();
 	void calculateBValues();
 	static double calcDistance(std::vector<double> p, std::vector<double> q);

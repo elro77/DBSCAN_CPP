@@ -14,8 +14,22 @@ double Silhouette::calculateSilhouetteValue(std::vector<std::vector<double>> dat
 	createClusterGravityPoint(dataset);
 
 	findClusterPairs();
+	std::vector<double> listAvgSilhouette;
+	//calculate any silhoueete value of each cluster
+	for (std::map<int, int>::iterator iter = m_clusterPairsDictionary.begin(); iter != m_clusterPairsDictionary.end(); ++iter)
+	{
+		int cluster = iter->first;
+		listAvgSilhouette.push_back(calculateAvgSilhoueteOfCluster(cluster));
+	}
 
-	return 0.0;
+
+	//return average value of silhouette
+	double sum = 0;
+	for (double value : listAvgSilhouette)
+	{
+		sum += value;
+	}
+	return sum/ listAvgSilhouette.size();
 }
 
 //this function will organize the indexes 
@@ -108,8 +122,9 @@ void Silhouette::findClusterPairs()
 
 }
 
-void Silhouette::calculateAvgSilhoueteOfCluster()
+double Silhouette::calculateAvgSilhoueteOfCluster(int clusterNumber)
 {
+	return 0.0;
 }
 
 void Silhouette::calculateClusterAValue()
