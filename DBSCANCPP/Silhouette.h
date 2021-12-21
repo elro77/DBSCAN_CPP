@@ -13,7 +13,7 @@ private:
 	std::map<int, std::vector<std::vector<double>>> m_clusterDictionaryVectors;
 
 	std::map<int, std::vector<double>> m_clusterGravityPointDictionary;
-	int* m_clusterPairs;
+	std::map<int, int> m_clusterPairsDictionary;
 
 	std::vector<std::vector<int>> m_clusters;
 
@@ -30,7 +30,7 @@ private:
 	void calculateClusterAValue();
 	void calculateBValues();
 	static double calcDistance(std::vector<double> p, std::vector<double> q);
-	static void workFindPair(const int startIndex, const int endIndex, int* clusterPairs , std::map<int, std::vector<double>> clusterGravityPointDictionary);
+	static void workFindPair(const int startIndex, const int endIndex, std::map<int, int>* clusterPairs , std::map<int, std::vector<double>> clusterGravityPointDictionary);
 
 };
 

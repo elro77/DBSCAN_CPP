@@ -79,9 +79,7 @@ void Silhouette::findClusterPairs()
 	//create array for pairs
 	int amountClusters = static_cast<int>(m_clusterGravityPointDictionary.size());
 
-	m_clusterPairs = (int*)malloc(sizeof(int) * amountClusters);
-	if (!m_clusterPairs)
-		exit(1);
+
 	std::thread threadArray[4];
 
 	//run threads to find those pairs
@@ -90,10 +88,10 @@ void Silhouette::findClusterPairs()
 	{
 		if (i == 3)
 		{
-			threadArray[i] = std::thread(workFindPair, i * size, amountClusters, m_clusterPairs, m_clusterGravityPointDictionary);
+			threadArray[i] = std::thread(workFindPair, i * size, amountClusters, &m_clusterPairsDictionary, m_clusterGravityPointDictionary);
 		}
 		else
-			threadArray[i] = std::thread(workFindPair, i * size, (i + 1) * size, m_clusterPairs, m_clusterGravityPointDictionary);
+			threadArray[i] = std::thread(workFindPair, i * size, (i + 1) * size, &m_clusterPairsDictionary, m_clusterGravityPointDictionary);
 
 	}
 
@@ -134,27 +132,31 @@ double Silhouette::calcDistance(std::vector<double> p, std::vector<double> q)
 	return pow(sum, 0.5);
 }
 
-void Silhouette::workFindPair(const int startIndex, const int endIndex, int* clusterPairs, std::map<int, std::vector<double>> clusterGravityPointDictionary)
+void Silhouette::workFindPair(const int startIndex, const int endIndex, std::map<int, int>*  clusterPairs, std::map<int, std::vector<double>> clusterGravityPointDictionary)
 {
-	for (int i = startIndex; i < endIndex; i++)
+	for (int currentCluster = startIndex; currentCluster < endIndex; currentCluster++)
 	{
 		double minDist = 999999;
 		int minimumIndex = 0;
-		auto v1 = clusterGravityPointDictionary.find(i)->second;
+		auto v1 = clusterGravityPointDictionary.find(currentCluster)->second;
 		//calcualte distance to all neighbors on same grid group
-		for (int j = 0; j < endIndex; j++)
+		for (int otherCluster = 0; otherCluster < endIndex; otherCluster++)
 		{
-			auto v2 = clusterGravityPointDictionary.find(j)->second;
+			auto v2 = clusterGravityPointDictionary.find(otherCluster)->second;
 			//they are in range, connect them by their real indexes
 			double dist = calcDistance(v1, v2);
 			if (dist == 0)
 				continue;
 			if (dist < minDist)
 			{
-				minimumIndex = j;
+				minimumIndex = otherCluster;
 				minDist = dist;
 			}
 		}
-		clusterPairs[i] = minimumIndex;
+		auto iter = clusterPairs->find(currentCluster);
+		if (iter == clusterPairs->end())
+		{
+			clusterPairs->insert({ currentCluster, minimumIndex });
+		}
 	}
 }
