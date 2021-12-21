@@ -215,19 +215,7 @@ void AlgorithmDBSCAN::initGraph()
 			threadArray[i].join();
 		}
 	
-		
-
-		/*
-		//testing the thread functionality
-		std::map<int, std::vector<int>> testMap;
-		std::vector<std::vector<double>> vectorList = m_gridDictionaryVectors.find(key)->second;
-		std::vector<int> indexes = m_gridDictionaryIndexes.find(key)->second;
-		std::thread testThread = std::thread(searchForConnections, 0, 120, m_eps, vectorList, indexes, &testMap);
-		testThread.join();
-		*/
-
-
-
+	
 		//after we ran on all the points we will merge the results for DBSCAN graph
 		for (int i = 0; i < 4; i++)
 		{

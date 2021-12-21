@@ -147,9 +147,11 @@
   <ItemGroup>
     <ClCompile Include="AlgorithmDBSCAN.cpp" />
     <ClCompile Include="DBSCANCPP.cpp" />
+    <ClCompile Include="Silhouette.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlgorithmDBSCAN.h" />
+    <ClInclude Include="Silhouette.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

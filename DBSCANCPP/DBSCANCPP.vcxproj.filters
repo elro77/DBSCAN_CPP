@@ -21,9 +21,15 @@
     <ClCompile Include="AlgorithmDBSCAN.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Silhouette.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlgorithmDBSCAN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Silhouette.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

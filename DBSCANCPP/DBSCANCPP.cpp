@@ -8,6 +8,7 @@
 #include<string>
 #include<thread>
 #include "AlgorithmDBSCAN.h"
+#include "Silhouette.h"
 
 /* ============ Version comments:
 * 
@@ -63,6 +64,11 @@
 * 100000 points = 158 seconds with (eps = 4, minPts = 2)
 * 100000 points = 158 seconds with (eps = 5, minPts = 2)
 * 
+* 
+*  
+* 
+* 
+* 
 */
 
 using namespace std::chrono;
@@ -88,7 +94,7 @@ int main()
 {
     int row = 1, col = 1;
 	int count = 0;
-	int amountOfPoints = 100000;
+	int amountOfPoints = 5000;
     std::string line;
     std::vector<std::vector<double>> dataset;
 	AlgorithmDBSCAN* algoDBSCAN;
@@ -131,6 +137,11 @@ int main()
 	stop = high_resolution_clock::now();
 	duration = duration_cast<seconds>(stop - start);
 	cout << "running DBSCAN time : " << duration.count() << " seconds" << endl;
+
+
+	Silhouette* silhouette = new Silhouette();
+	double silhouetteValue = silhouette->calculateSilhouetteValue(dataset, resultClusters);
+	
 
 
 	//print clusters
