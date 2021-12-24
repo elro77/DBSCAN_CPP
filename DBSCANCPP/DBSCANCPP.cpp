@@ -131,16 +131,23 @@ int main()
 
 	start = high_resolution_clock::now();
 
-	algoDBSCAN = new AlgorithmDBSCAN(5, 2, dataset.size());
+	start = high_resolution_clock::now();
+	algoDBSCAN = new AlgorithmDBSCAN(4, 3, dataset.size());
 	auto resultClusters = algoDBSCAN->startClustering(dataset);
 
 	stop = high_resolution_clock::now();
 	duration = duration_cast<seconds>(stop - start);
 	cout << "running DBSCAN time : " << duration.count() << " seconds" << endl;
 
-
+	start = high_resolution_clock::now();
 	Silhouette* silhouette = new Silhouette();
 	double silhouetteValue = silhouette->calculateSilhouetteValue(dataset, resultClusters);
+	stop = high_resolution_clock::now();
+	duration = duration_cast<seconds>(stop - start);
+	//cout << "(" << i << ", " << j << ") " << "silhouetteValue =  " << silhouetteValue << "\n";
+	cout << "silhouette calculation lasted: " << duration.count() << "\n";
+	cout << "Svalue = " << silhouetteValue << "\n";
+
 	
 
 
@@ -182,7 +189,7 @@ int main()
 	{
 		cout << "There is no clustering at all\n";
 	}
-
+	
     return 0;
 }
 

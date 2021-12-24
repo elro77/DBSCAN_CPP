@@ -89,7 +89,7 @@ void AlgorithmDBSCAN::createGraph(std::vector<std::vector<double>> dataset)
 	//
 	auto stop = high_resolution_clock::now();
 	seconds duration = duration_cast<seconds>(stop - start);
-	cout << "initgridDictionaryVectors() time last: " << duration.count() << " seconds" << endl;
+	//cout << "initgridDictionaryVectors() time last: " << duration.count() << " seconds" << endl;
 
 	start = high_resolution_clock::now();
 	//
@@ -97,7 +97,7 @@ void AlgorithmDBSCAN::createGraph(std::vector<std::vector<double>> dataset)
 	//
 	stop = high_resolution_clock::now();
 	duration = duration_cast<seconds>(stop - start);
-	cout << "initGraph() time last: " << duration.count() << " seconds" << endl;
+	//cout << "initGraph() time last: " << duration.count() << " seconds" << endl;
 
 }
 void AlgorithmDBSCAN::zipGrid()
@@ -236,7 +236,7 @@ void AlgorithmDBSCAN::initGraph()
 
 		auto stop = high_resolution_clock::now();
 		seconds duration = duration_cast<seconds>(stop - start);
-		cout << "running with thrads time last: " << duration.count() << " seconds" << endl;
+		//cout << "running with thrads time last: " << duration.count() << " seconds" << endl;
 
 	}
 	

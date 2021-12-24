@@ -14,22 +14,38 @@ double Silhouette::calculateSilhouetteValue(std::vector<std::vector<double>> dat
 	createClusterGravityPoint(dataset);
 
 	findClusterPairs();
-	std::vector<double> listAvgSilhouette;
-	//calculate any silhoueete value of each cluster
-	for (std::map<int, int>::iterator iter = m_clusterPairsDictionary.begin(); iter != m_clusterPairsDictionary.end(); ++iter)
+	
+
+	//calculate any silhoueete value of each cluster using threads
+	std::thread threadArray[4];
+
+	int endClusterIndex = static_cast<int>(m_clusterPairsDictionary.size());
+	int startClusterIndex = static_cast<int> (m_clusterPairsDictionary.size() / 4.0);
+	for (int i = 0; i < 4; i++)
 	{
-		int cluster = iter->first;
-		listAvgSilhouette.push_back(calculateAvgSilhoueteOfCluster(cluster));
+		if (i == 3)
+		{
+			threadArray[i] = std::thread(calculateAvgSilhoueteOfCluster, i * startClusterIndex, endClusterIndex, &m_listAvgSilhouette, &m_clusterGravityPointDictionary, &m_clusterDictionaryIndexes, &m_clusterDictionaryVectors, &m_clusterPairsDictionary, &m_silhouetteMutex);
+		}
+		else
+			threadArray[i] = std::thread(calculateAvgSilhoueteOfCluster, i * startClusterIndex, (i + 1) * startClusterIndex, &m_listAvgSilhouette, &m_clusterGravityPointDictionary, &m_clusterDictionaryIndexes, &m_clusterDictionaryVectors, &m_clusterPairsDictionary, &m_silhouetteMutex);
+
 	}
 
-
+	//wait for all threads to finish
+	for (int i = 0; i < 4; i++)
+	{
+		threadArray[i].join();
+	}
 	//return average value of silhouette
 	double sum = 0;
-	for (double value : listAvgSilhouette)
+	for (double value : m_listAvgSilhouette)
 	{
 		sum += value;
 	}
-	return sum/ listAvgSilhouette.size();
+	if (m_listAvgSilhouette.size() == 0)
+		return -1;
+	return sum / m_listAvgSilhouette.size();
 }
 
 //this function will organize the indexes 
@@ -51,6 +67,15 @@ void Silhouette::createClustersDictionaryIndexes(std::vector<std::vector<double>
 			m_clusterDictionaryIndexes.insert({ cluster , indexes });
 		}
 		m_clusterDictionaryIndexes.find(cluster)->second.push_back(pIndex);
+
+		//add vector to cluster map 
+		auto it2 = m_clusterDictionaryVectors.find(cluster);
+		if (it2 == m_clusterDictionaryVectors.end())
+		{
+			std::vector<std::vector<double>> vectors;
+			m_clusterDictionaryVectors.insert({ cluster , vectors });
+		}
+		m_clusterDictionaryVectors.find(cluster)->second.push_back(dataset[pIndex]);
 	}
 }
 
@@ -117,22 +142,87 @@ void Silhouette::findClusterPairs()
 
 	int size2 = static_cast<int> (amountClusters / 4.0);
 
-
-
-
 }
 
-double Silhouette::calculateAvgSilhoueteOfCluster(int clusterNumber)
+void Silhouette::calculateAvgSilhoueteOfCluster(const int startClusterIndex, const int endClusterIndex, std::vector<double>* listAvgSilhouette, std::map<int, std::vector<double>>* clusterGravityPointDictionary, std::map<int, std::vector<int>>* clusterDictionaryIndexes, std::map<int, std::vector<std::vector<double>>>* clusterDictionaryVectors, std::map<int, int>* clusterPairsDictionary, std::mutex* silhouetteMutex)
 {
-	return 0.0;
+	for (int clusterNumber = startClusterIndex; clusterNumber < endClusterIndex; clusterNumber++)
+	{
+		std::vector<double> AValueList = calculateClusterAValue(clusterNumber, clusterGravityPointDictionary, clusterDictionaryVectors);
+		std::vector<double> BValueList = calculateBValues(clusterNumber, clusterPairsDictionary, clusterGravityPointDictionary, clusterDictionaryVectors);
+		std::vector<double> SValueList;
+		for (int i = 0; i < AValueList.size(); i++)
+		{
+			double a = AValueList[i];
+			double b = BValueList[i];
+			if (a < b)
+			{
+				SValueList.push_back((1 - (a / b)));
+				continue;
+			}
+			if (a == b)
+			{
+				SValueList.push_back(0);
+				continue;
+			}
+			SValueList.push_back((b / a) - 1);
+		}
+		double sum = 0;
+		for (double val : SValueList)
+		{
+			sum += val;
+		}
+		double avgS = sum / SValueList.size();
+
+		silhouetteMutex->lock();
+		listAvgSilhouette->push_back(avgS);
+		silhouetteMutex->unlock();
+
+	}	
 }
 
-void Silhouette::calculateClusterAValue()
+std::vector<double> Silhouette::calculateClusterAValue(const int clusterNumber, std::map<int, std::vector<double>>* clusterGravityPointDictionary, std::map<int, std::vector<std::vector<double>>>* clusterDictionaryVectors)
 {
+	std::vector<double> AValueList;
+	//pull the current cluster vector
+	auto iter = clusterGravityPointDictionary->find(clusterNumber);
+	std::vector<double> CIVector = iter->second;
+	//pull all current cluster vectors
+	auto iter2 = clusterDictionaryVectors->find(clusterNumber);	
+	std::vector<std::vector<double>> CIVectors = iter2->second;
+	double temp = 0;
+	for (int i = 0; i < CIVectors.size(); i++)
+	{
+		temp = calcADistance(CIVectors[i], CIVector, (int)CIVectors.size()) / CIVectors.size();
+		AValueList.push_back(temp);
+	}
+	return AValueList;
 }
-
-void Silhouette::calculateBValues()
+ 
+std::vector<double> Silhouette::calculateBValues(const int clusterNumber, std::map<int, int>* clusterPairsDictionary, std::map<int, std::vector<double>>* clusterGravityPointDictionary, std::map<int, std::vector<std::vector<double>>>* clusterDictionaryVectors)
 {
+	std::vector<double> BValueList;
+	//pull the index of closest cluset
+	auto iter = clusterPairsDictionary->find(clusterNumber);
+	int CJNumber = iter->second;
+	//pull the closest cluster vector
+	auto iter2 = clusterGravityPointDictionary->find(CJNumber);
+	std::vector<double> CJVector = iter2 ->second;
+	//pull all current cluster vectors
+	auto iter3 = clusterDictionaryVectors->find(clusterNumber);
+	std::vector<std::vector<double>> CIVectors = iter3->second;
+	int size = static_cast<int>(CIVectors.size());
+	double temp = 0;
+	//caclaulate b Value
+	for (int i = 0; i < CIVectors.size(); i++)
+	{ 
+		temp = calcDistance(CIVectors[i], CJVector) / size;
+		BValueList.push_back(temp);
+	}
+		
+
+	return BValueList;
+
 }
 
 double Silhouette::calcDistance(std::vector<double> p, std::vector<double> q)
@@ -146,6 +236,27 @@ double Silhouette::calcDistance(std::vector<double> p, std::vector<double> q)
 	}
 	return pow(sum, 0.5);
 }
+
+double Silhouette::calcADistance(std::vector<double> a, std::vector<double> ac, int clusterSize)
+{
+	//equation:
+	// sqrt(a(i)^2 + (ac - (a(i)/clusterSize)))
+	//fix to:
+	// sqrt( sumc((a.D - (ac.D * clustersize - a.D) / clustersize - 1 )^2)    )
+	
+	double sum = 0;
+	double temp = 0;
+	if (clusterSize == 1)
+		return 0;
+	for (int i = 0; i < a.size(); i++)
+	{
+		temp = a[i] - ((ac[i] * clusterSize - a[i]) / (clusterSize - 1));
+		sum += temp * temp;
+	}
+	return sqrt(sum);
+}
+
+
 
 void Silhouette::workFindPair(const int startIndex, const int endIndex, std::map<int, int>*  clusterPairs, std::map<int, std::vector<double>> clusterGravityPointDictionary)
 {
