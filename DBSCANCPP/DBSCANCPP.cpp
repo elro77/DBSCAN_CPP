@@ -94,7 +94,7 @@ int main()
 {
     int row = 1, col = 1;
 	int count = 0;
-	int amountOfPoints = 5000;
+	int amountOfPoints = 100000;
     std::string line;
     std::vector<std::vector<double>> dataset;
 	AlgorithmDBSCAN* algoDBSCAN;
@@ -127,12 +127,10 @@ int main()
 	seconds duration = duration_cast<seconds>(stop - start);
 	cout << "Reading time last: " << duration.count() << " seconds" << endl;
 
-
-
 	start = high_resolution_clock::now();
 
 	start = high_resolution_clock::now();
-	algoDBSCAN = new AlgorithmDBSCAN(4, 3, dataset.size());
+	algoDBSCAN = new AlgorithmDBSCAN(4, 2, dataset.size());
 	auto resultClusters = algoDBSCAN->startClustering(dataset);
 
 	stop = high_resolution_clock::now();
@@ -147,10 +145,21 @@ int main()
 	//cout << "(" << i << ", " << j << ") " << "silhouetteValue =  " << silhouetteValue << "\n";
 	cout << "silhouette calculation lasted: " << duration.count() << "\n";
 	cout << "Svalue = " << silhouetteValue << "\n";
+	//cout << i << ", " << j << " -> Svalue = " << silhouetteValue << "\n";
+
+	/*
+	for (int i = 3; i < 6; i++)
+	{
+		for (int j = 2; j < 6; j++)
+		{
+	
+		}
+	}
+	*/
 
 	
 
-
+	/*
 	//print clusters
 	for (int i = 0; i < resultClusters.size(); i++)
 	{
@@ -189,7 +198,7 @@ int main()
 	{
 		cout << "There is no clustering at all\n";
 	}
-	
+	*/
     return 0;
 }
 

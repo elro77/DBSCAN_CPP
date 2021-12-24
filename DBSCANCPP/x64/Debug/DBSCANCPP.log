@@ -1,2 +1,5 @@
-﻿  Silhouette.cpp
+﻿  DBSCANCPP.cpp
+C:\DBSCAN_CPP\DBSCANCPP\DBSCANCPP.cpp(133,56): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
+  Silhouette.cpp
+  Generating Code...
   DBSCANCPP.vcxproj -> C:\DBSCAN_CPP\DBSCANCPP\x64\Debug\DBSCANCPP.exe

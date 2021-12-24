@@ -193,7 +193,7 @@ std::vector<double> Silhouette::calculateClusterAValue(const int clusterNumber, 
 	double temp = 0;
 	for (int i = 0; i < CIVectors.size(); i++)
 	{
-		temp = calcADistance(CIVectors[i], CIVector, (int)CIVectors.size()) / CIVectors.size();
+		temp = calcADistance(CIVectors[i], CIVector, (int)CIVectors.size());
 		AValueList.push_back(temp);
 	}
 	return AValueList;
@@ -211,12 +211,11 @@ std::vector<double> Silhouette::calculateBValues(const int clusterNumber, std::m
 	//pull all current cluster vectors
 	auto iter3 = clusterDictionaryVectors->find(clusterNumber);
 	std::vector<std::vector<double>> CIVectors = iter3->second;
-	int size = static_cast<int>(CIVectors.size());
 	double temp = 0;
 	//caclaulate b Value
 	for (int i = 0; i < CIVectors.size(); i++)
 	{ 
-		temp = calcDistance(CIVectors[i], CJVector) / size;
+		temp = calcDistance(CIVectors[i], CJVector);
 		BValueList.push_back(temp);
 	}
 		
@@ -250,6 +249,7 @@ double Silhouette::calcADistance(std::vector<double> a, std::vector<double> ac, 
 		return 0;
 	for (int i = 0; i < a.size(); i++)
 	{
+		//calculate other avg gravity point and clac distance to it
 		temp = a[i] - ((ac[i] * clusterSize - a[i]) / (clusterSize - 1));
 		sum += temp * temp;
 	}
