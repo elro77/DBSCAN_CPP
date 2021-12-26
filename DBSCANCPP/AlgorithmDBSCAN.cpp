@@ -9,18 +9,21 @@ AlgorithmDBSCAN::AlgorithmDBSCAN(const double eps_, const unsigned int minPits_,
 	for (int i = 0; i < size_; i++)
 	{
 		m_clusters.push_back(-1);
-		m_noisePoints.push_back(false);
-		m_undefinedPoints.push_back(true);
+		m_noisePoints.push_back(false); //point which are classified as 'Noise'
+		m_undefinedPoints.push_back(true); //all the points which are not classified yet 
 
-		m_isInConnetions.push_back(false);
+		m_isInConnetions.push_back(false); //vector that will hold pIndex if they have any connections
 		std::vector<int> indexes;
-		m_connectionsArray.push_back(indexes);
+		m_connectionsArray.push_back(indexes); // vector that will hold another vector of qIndex which are neighbors of pIndex
 	}
 }
 
+//this function will create a graph of the points acording to eps 
+//later will run on such graph as DBSCAN algo, and classify each point to its cluster.
 std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double>> dataset)
 {
 	createGraph(dataset);
+	//running through the graph
 	for (int pIndex = 0; pIndex < dataset.size(); pIndex++)
 	{
 		//std::cout << "running pIndex  : " << pIndex << std::endl;
@@ -30,6 +33,8 @@ std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double
 		{
 			continue;
 		}
+		//get neighbors of pIndex (nieghbors are the points which are connected to pIndex 
+		//with at most eps distance
 		auto neighbors = m_connectionsArray[pIndex];
 		if (neighbors.size() < m_minPts)
 		{
@@ -41,6 +46,7 @@ std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double
 		m_clusters[pIndex] = m_currentCluster;
 		m_undefinedPoints[pIndex] = false;
 
+		//run though the neighbors of the neighbors
 		auto seedSet = neighbors;
 		for (int i = 0 ;i < seedSet.size(); i++)
 		{
@@ -66,6 +72,7 @@ std::vector<int> AlgorithmDBSCAN::startClustering(std::vector<std::vector<double
 	return m_clusters;
 }
 
+//this function was used as explained in the algo, but will not be used when we upgrade it
 inline std::vector<int> AlgorithmDBSCAN::rangeQuery(std::vector<std::vector<double>> dataset, int pIndex)
 {
 	/*
@@ -81,10 +88,11 @@ inline std::vector<int> AlgorithmDBSCAN::rangeQuery(std::vector<std::vector<doub
 	return m_connectionsArray[pIndex];
 }
 
+//this function will create our connections graph according to eps.
 void AlgorithmDBSCAN::createGraph(std::vector<std::vector<double>> dataset)
 {
 	auto start = high_resolution_clock::now();
-	//
+	//this function will create an index grid to reduce calculations
 	initgridDictionaryVectors(dataset);
 	//
 	auto stop = high_resolution_clock::now();
@@ -92,7 +100,7 @@ void AlgorithmDBSCAN::createGraph(std::vector<std::vector<double>> dataset)
 	//cout << "initgridDictionaryVectors() time last: " << duration.count() << " seconds" << endl;
 
 	start = high_resolution_clock::now();
-	//
+	//this function will loop thourgh the grid and create a graph
 	initGraph();
 	//
 	stop = high_resolution_clock::now();
@@ -100,6 +108,7 @@ void AlgorithmDBSCAN::createGraph(std::vector<std::vector<double>> dataset)
 	//cout << "initGraph() time last: " << duration.count() << " seconds" << endl;
 
 }
+//this function will unite vectors between each grid groups according to eps
 void AlgorithmDBSCAN::zipGrid()
 {
 	for (int currentKey : m_actualKeys)
@@ -116,35 +125,35 @@ void AlgorithmDBSCAN::zipGrid()
 		}
 	}
 }
+//this function will create an index grid to reduce calculations
+//where each group will be a single value which is calulcated as the avg of all dimentions values
 void AlgorithmDBSCAN::initgridDictionaryVectors(std::vector<std::vector<double>> dataset)
 {
 	int currentKey;
+
 	for (int pIndex = 0; pIndex < dataset.size(); pIndex++)
 	{
 		currentKey = calcAvg(dataset[pIndex]);
 		m_actualKeys.insert(currentKey);
 		auto it = m_gridDictionaryVectors.find(currentKey);
+		//if there is no such key then:
 		if (it == m_gridDictionaryVectors.end())
 		{
+			//insert key with a new vector
 			std::vector<int> indexes;
 			std::vector<std::vector<double>> vectors;
 			m_gridDictionaryIndexes.insert({ currentKey ,indexes });
 			m_gridDictionaryVectors.insert({ currentKey ,vectors });
 		}
-		m_gridDictionaryIndexes.find(currentKey)->second.push_back(pIndex);
-		m_gridDictionaryVectors.find(currentKey)->second.push_back(dataset[pIndex]);
+		//update values
+		m_gridDictionaryIndexes.find(currentKey)->second.push_back(pIndex); //the index of the point relative to the dataset was used mainly in python
+		m_gridDictionaryVectors.find(currentKey)->second.push_back(dataset[pIndex]);//the vector of the point 
 	}
-
+	//unite nehighbor vectors of other grid points according to eps
 	zipGrid();
 }
 
-
-void AlgorithmDBSCAN::connectNodes()
-{
-
-}
-
-
+//this function will search for connections between the members of the grid 
 void AlgorithmDBSCAN::searchForConnections(const int startIndex, const int endIndex, const double eps, std::vector<std::vector<double>> vectorList, std::vector<int> indexes, std::map<int, std::vector<int>> *connectionMap)
 {
 	int pIndex, qIndex;
@@ -173,18 +182,19 @@ void AlgorithmDBSCAN::searchForConnections(const int startIndex, const int endIn
 }
 
 
+//this function will loop thourgh the grid and create a graph
 void AlgorithmDBSCAN::initGraph()
 {
-
+	//for eacg grid point we wil earch the connections of its members
 	for (int frr = 0; frr < m_actualKeys.size(); frr++) //frr -> free running
 	{
 		//pull the key from a set in index frr
 		std::set<int>::iterator it = m_actualKeys.begin();
 		std::advance(it, frr);
 		int key = *it;
-		//running witth threads to find connections to our points
+		//running with threads to find connections to our points
 		//to enable independence for each thread we will use 4 diffrent maps
-		//eachc thread wil lcalculate distance to other points and check if they are connected, if so connect them
+		//each thread wil calculate distance to other points and check if they are connected, if so connect them
 		std::map<int, std::vector<int>> connectionMaps[4];
 		std::thread threadArray[4];
 		int size = static_cast<int> (m_gridDictionaryVectors.find(key)->second.size() / 4.0);
@@ -199,13 +209,9 @@ void AlgorithmDBSCAN::initGraph()
 			std::vector<int> indexes = m_gridDictionaryIndexes.find(key)->second;
 
 			if (i == 3)
-			{
 				threadArray[i] = std::thread(searchForConnections, i* size, maxSize, m_eps, vectorList, indexes, &connectionMaps[i]);
-				//threadArray[i] = std::thread(connectNodes);
-			}
 			else
 				threadArray[i] = std::thread(searchForConnections, i* size, (i+1)*size, m_eps, vectorList, indexes, &connectionMaps[i]);
-				//threadArray[i] = std::thread(connectNodes);
 			
 		}
 
@@ -225,10 +231,8 @@ void AlgorithmDBSCAN::initGraph()
 				std::vector<int> connections = iter->second;
 				if (connections.size() >= m_minPts)
 				{
-					//m_connectionsMap.insert({ key , connections });
 					m_isInConnetions[key] = true;
 					m_connectionsArray[key] = connections;
-
 				}
 					
 			}
@@ -236,7 +240,7 @@ void AlgorithmDBSCAN::initGraph()
 
 		auto stop = high_resolution_clock::now();
 		seconds duration = duration_cast<seconds>(stop - start);
-		//cout << "running with thrads time last: " << duration.count() << " seconds" << endl;
+		cout << "running with thrads time last: " << duration.count() << " seconds" << endl;
 
 	}
 	
@@ -258,11 +262,7 @@ double AlgorithmDBSCAN::calcDistance(std::vector<double> p, std::vector<double> 
 }
 
 
-
-
-
-
-
+//calculate avg of all vectors values
 int AlgorithmDBSCAN::calcAvg(std::vector<double> vec)
 {
 	int sum = 0;

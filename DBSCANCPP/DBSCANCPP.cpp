@@ -65,21 +65,20 @@
 * 100000 points = 158 seconds with (eps = 5, minPts = 2)
 * 
 * 
-*  
-* 
-* 
-* 
 */
 
 using namespace std::chrono;
 using namespace std;
 
 
+//this function will read a line from the file which is a vector
+//and converts it to a vector
 vector<double> readLineData(string line)
 {
 	std::vector<double> rowData;
 	std::stringstream stringStream(line);
 	double value;
+	//pulling all double values from the string
 	while (stringStream >> value) {
 		rowData.push_back(value);
 		if (stringStream.peek() == ',')           
@@ -104,6 +103,7 @@ int main()
     cout << "Welcome!\n";
     cout << "Reading Data:\n";
 
+
 	auto start = high_resolution_clock::now();
 	//open file and read its context
     ifstream file("data.txt");
@@ -127,9 +127,10 @@ int main()
 	seconds duration = duration_cast<seconds>(stop - start);
 	cout << "Reading time last: " << duration.count() << " seconds" << endl;
 
+	auto start2 = high_resolution_clock::now();
 	start = high_resolution_clock::now();
 
-	start = high_resolution_clock::now();
+	//calling the DBSCAN algo and runs it with eps = 4, minPts = 2 
 	algoDBSCAN = new AlgorithmDBSCAN(4, 2, dataset.size());
 	auto resultClusters = algoDBSCAN->startClustering(dataset);
 
@@ -138,29 +139,24 @@ int main()
 	cout << "running DBSCAN time : " << duration.count() << " seconds" << endl;
 
 	start = high_resolution_clock::now();
+
+	//run shilouette to calculate cluster score
 	Silhouette* silhouette = new Silhouette();
 	double silhouetteValue = silhouette->calculateSilhouetteValue(dataset, resultClusters);
+
 	stop = high_resolution_clock::now();
 	duration = duration_cast<seconds>(stop - start);
-	//cout << "(" << i << ", " << j << ") " << "silhouetteValue =  " << silhouetteValue << "\n";
 	cout << "silhouette calculation lasted: " << duration.count() << "\n";
 	cout << "Svalue = " << silhouetteValue << "\n";
-	//cout << i << ", " << j << " -> Svalue = " << silhouetteValue << "\n";
 
-	/*
-	for (int i = 3; i < 6; i++)
-	{
-		for (int j = 2; j < 6; j++)
-		{
-	
-		}
-	}
-	*/
-
+	auto stop2 = high_resolution_clock::now();
+	seconds duration2 = duration_cast<seconds>(stop2 - start2);
+	cout << "Total time = " << duration2.count() << "\n";
 	
 
-	/*
+
 	//print clusters
+	//for each cluster add the dataset point index into the map for printing
 	for (int i = 0; i < resultClusters.size(); i++)
 	{
 		long cnt = 0;
@@ -179,6 +175,7 @@ int main()
 		}
 	}
 
+	//run through all keys (clusters) and print there members
 	if (clustersMap.size() != 0)
 	{
 		for (std::map<int, std::vector<int>>::iterator iter = clustersMap.begin(); iter != clustersMap.end(); ++iter)
@@ -198,15 +195,6 @@ int main()
 	{
 		cout << "There is no clustering at all\n";
 	}
-	*/
+
     return 0;
 }
-
-
-/*
-   auto start = high_resolution_clock::now();
-   do stuf here()
-   auto stop = high_resolution_clock::now();
-   seconds duration = duration_cast<seconds>(stop - start);
-   cout << "Reading time last: " << duration.count() << " seconds" << endl;
- */

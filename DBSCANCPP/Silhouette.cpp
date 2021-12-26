@@ -7,12 +7,16 @@ Silhouette::Silhouette()
 {
 }
 
+//this function will create the gravity point and calculate the S value of the cluster
 double Silhouette::calculateSilhouetteValue(std::vector<std::vector<double>> dataset, std::vector<int> clusters)
 {
+	//create a map for each cluster with their members
 	createClustersDictionaryIndexes(dataset, clusters);
 
+	//clculate the graivty points of each cluster
 	createClusterGravityPoint(dataset);
 
+	//find the closest grviatyPoint of each other
 	findClusterPairs();
 	
 
@@ -21,6 +25,7 @@ double Silhouette::calculateSilhouetteValue(std::vector<std::vector<double>> dat
 
 	int endClusterIndex = static_cast<int>(m_clusterPairsDictionary.size());
 	int startClusterIndex = static_cast<int> (m_clusterPairsDictionary.size() / 4.0);
+	//each thread wil calculate the average s value of thier input clusters
 	for (int i = 0; i < 4; i++)
 	{
 		if (i == 3)
@@ -48,7 +53,8 @@ double Silhouette::calculateSilhouetteValue(std::vector<std::vector<double>> dat
 	return sum / m_listAvgSilhouette.size();
 }
 
-//this function will organize the indexes 
+
+//create a map for each cluster with their members
 void Silhouette::createClustersDictionaryIndexes(std::vector<std::vector<double>> dataset, std::vector<int> clusters)
 {
 	int pIndex = -1;
@@ -79,17 +85,22 @@ void Silhouette::createClustersDictionaryIndexes(std::vector<std::vector<double>
 	}
 }
 
+//clculate the graivty points of each cluster
+//a cluster gravity point will be calulated as the average point of all it's member points
 void Silhouette::createClusterGravityPoint(std::vector<std::vector<double>> dataset)
 {
+	//for each cluster
 	for (std::map<int, std::vector<int>>::iterator iter = m_clusterDictionaryIndexes.begin(); iter != m_clusterDictionaryIndexes.end(); ++iter)
 	{
 		int cluster = iter->first;
 		std::vector<int> pIndexesVector = iter->second;
 		std::vector<double> gravityPoint;
+		//reset the vector of gravityPoint
 		for (int i = 0; i < dataset[0].size(); i++)
 		{
 			gravityPoint.push_back(0);
 		}
+		//calculate the sum of each dimention
 		for (int pIndex : pIndexesVector)
 		{
 			for (int i = 0; i < dataset[pIndex].size(); i++)
@@ -97,12 +108,15 @@ void Silhouette::createClusterGravityPoint(std::vector<std::vector<double>> data
 				gravityPoint[i] += dataset[pIndex][i];
 			}
 		}
+
 		size_t sizeOfCluster = m_clusterDictionaryIndexes.find(cluster)->second.size();
+		//calculate the average value
 		for (int i = 0; i < gravityPoint.size(); i++)
 		{
 			gravityPoint[i] /= sizeOfCluster;
 		}
 
+		//add the calculated gravityPoint to the map, where key is the cluster number and the value is the gravityPoint vecotr
 		auto it = m_clusterGravityPointDictionary.find(cluster);
 		if (it == m_clusterGravityPointDictionary.end())
 		{
@@ -113,6 +127,7 @@ void Silhouette::createClusterGravityPoint(std::vector<std::vector<double>> data
 	}
 }
 
+//find the closest grviatyPoint of each other
 void Silhouette::findClusterPairs()
 {
 	//create array for pairs
@@ -130,7 +145,7 @@ void Silhouette::findClusterPairs()
 			threadArray[i] = std::thread(workFindPair, i * size, amountClusters, &m_clusterPairsDictionary, m_clusterGravityPointDictionary);
 		}
 		else
-			threadArray[i] = std::thread(workFindPair, i * size, (i + 1) * size, &m_clusterPairsDictionary, m_clusterGravityPointDictionary);
+			threadArray[i] = std::thread(workFindPair, i * size, amountClusters, &m_clusterPairsDictionary, m_clusterGravityPointDictionary);
 
 	}
 
@@ -144,8 +159,11 @@ void Silhouette::findClusterPairs()
 
 }
 
+
+//calculate the average S value of clusters
 void Silhouette::calculateAvgSilhoueteOfCluster(const int startClusterIndex, const int endClusterIndex, std::vector<double>* listAvgSilhouette, std::map<int, std::vector<double>>* clusterGravityPointDictionary, std::map<int, std::vector<int>>* clusterDictionaryIndexes, std::map<int, std::vector<std::vector<double>>>* clusterDictionaryVectors, std::map<int, int>* clusterPairsDictionary, std::mutex* silhouetteMutex)
 {
+	//for each cluster we will calcualte A value and B value 
 	for (int clusterNumber = startClusterIndex; clusterNumber < endClusterIndex; clusterNumber++)
 	{
 		std::vector<double> AValueList = calculateClusterAValue(clusterNumber, clusterGravityPointDictionary, clusterDictionaryVectors);
@@ -181,6 +199,8 @@ void Silhouette::calculateAvgSilhoueteOfCluster(const int startClusterIndex, con
 	}	
 }
 
+//calculation of A will be as followed:
+//a value will be the distance between pIndex to (gravityPoint - pIndex)
 std::vector<double> Silhouette::calculateClusterAValue(const int clusterNumber, std::map<int, std::vector<double>>* clusterGravityPointDictionary, std::map<int, std::vector<std::vector<double>>>* clusterDictionaryVectors)
 {
 	std::vector<double> AValueList;
@@ -191,6 +211,7 @@ std::vector<double> Silhouette::calculateClusterAValue(const int clusterNumber, 
 	auto iter2 = clusterDictionaryVectors->find(clusterNumber);	
 	std::vector<std::vector<double>> CIVectors = iter2->second;
 	double temp = 0;
+	//for each point calcualte the A value
 	for (int i = 0; i < CIVectors.size(); i++)
 	{
 		temp = calcADistance(CIVectors[i], CIVector, (int)CIVectors.size());
@@ -198,7 +219,9 @@ std::vector<double> Silhouette::calculateClusterAValue(const int clusterNumber, 
 	}
 	return AValueList;
 }
- 
+
+//calculation of B will be as followed:
+//a value will be the distance between pIndex the closest gravityPoint CJ
 std::vector<double> Silhouette::calculateBValues(const int clusterNumber, std::map<int, int>* clusterPairsDictionary, std::map<int, std::vector<double>>* clusterGravityPointDictionary, std::map<int, std::vector<std::vector<double>>>* clusterDictionaryVectors)
 {
 	std::vector<double> BValueList;
@@ -212,7 +235,7 @@ std::vector<double> Silhouette::calculateBValues(const int clusterNumber, std::m
 	auto iter3 = clusterDictionaryVectors->find(clusterNumber);
 	std::vector<std::vector<double>> CIVectors = iter3->second;
 	double temp = 0;
-	//caclaulate b Value
+	//for each point calcualte the B value
 	for (int i = 0; i < CIVectors.size(); i++)
 	{ 
 		temp = calcDistance(CIVectors[i], CJVector);
@@ -257,7 +280,7 @@ double Silhouette::calcADistance(std::vector<double> a, std::vector<double> ac, 
 }
 
 
-
+//search for a pair to a cluster
 void Silhouette::workFindPair(const int startIndex, const int endIndex, std::map<int, int>*  clusterPairs, std::map<int, std::vector<double>> clusterGravityPointDictionary)
 {
 	for (int currentCluster = startIndex; currentCluster < endIndex; currentCluster++)
