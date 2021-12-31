@@ -54,7 +54,7 @@ double Silhouette::calculateSilhouetteValue(std::vector<std::vector<double>> dat
 }
 
 
-//create a map for each cluster with their members
+//create a map for each cluster with their members 
 void Silhouette::createClustersDictionaryIndexes(std::vector<std::vector<double>> dataset, std::vector<int> clusters)
 {
 	int pIndex = -1;

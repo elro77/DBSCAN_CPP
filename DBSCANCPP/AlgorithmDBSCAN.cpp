@@ -185,7 +185,7 @@ void AlgorithmDBSCAN::searchForConnections(const int startIndex, const int endIn
 //this function will loop thourgh the grid and create a graph
 void AlgorithmDBSCAN::initGraph()
 {
-	//for eacg grid point we wil earch the connections of its members
+	//for each grid point we wil search the connections of its members
 	for (int frr = 0; frr < m_actualKeys.size(); frr++) //frr -> free running
 	{
 		//pull the key from a set in index frr
