@@ -140,12 +140,8 @@ void Silhouette::findClusterPairs()
 	int size = static_cast<int> (amountClusters / 4.0);
 	for (int i = 0; i < 4; i++)
 	{
-		if (i == 3)
-		{
-			threadArray[i] = std::thread(workFindPair, i * size, amountClusters, &m_clusterPairsDictionary, m_clusterGravityPointDictionary);
-		}
-		else
-			threadArray[i] = std::thread(workFindPair, i * size, amountClusters, &m_clusterPairsDictionary, m_clusterGravityPointDictionary);
+
+		threadArray[i] = std::thread(workFindPair, i * size, (i+1) * size, amountClusters, &m_clusterPairsDictionary, m_clusterGravityPointDictionary);
 
 	}
 
@@ -155,7 +151,7 @@ void Silhouette::findClusterPairs()
 		threadArray[i].join();
 	}
 
-	int size2 = static_cast<int> (amountClusters / 4.0);
+	//int size2 = static_cast<int> (amountClusters / 4.0);
 
 }
 
@@ -256,14 +252,11 @@ double Silhouette::calcDistance(std::vector<double> p, std::vector<double> q)
 		sub = p[i] - q[i];
 		sum += (sub * sub);
 	}
-	return pow(sum, 0.5);
+	return sqrt(sum);
 }
 
 double Silhouette::calcADistance(std::vector<double> a, std::vector<double> ac, int clusterSize)
 {
-	//equation:
-	// sqrt(a(i)^2 + (ac - (a(i)/clusterSize)))
-	//fix to:
 	// sqrt( sumc((a.D - (ac.D * clustersize - a.D) / clustersize - 1 )^2)    )
 	
 	double sum = 0;
@@ -281,7 +274,7 @@ double Silhouette::calcADistance(std::vector<double> a, std::vector<double> ac, 
 
 
 //search for a pair to a cluster
-void Silhouette::workFindPair(const int startIndex, const int endIndex, std::map<int, int>*  clusterPairs, std::map<int, std::vector<double>> clusterGravityPointDictionary)
+void Silhouette::workFindPair(const int startIndex, const int endIndex, const int maxSize, std::map<int, int>*  clusterPairs, std::map<int, std::vector<double>> clusterGravityPointDictionary)
 {
 	for (int currentCluster = startIndex; currentCluster < endIndex; currentCluster++)
 	{
@@ -289,7 +282,7 @@ void Silhouette::workFindPair(const int startIndex, const int endIndex, std::map
 		int minimumIndex = 0;
 		auto v1 = clusterGravityPointDictionary.find(currentCluster)->second;
 		//calcualte distance to all neighbors on same grid group
-		for (int otherCluster = 0; otherCluster < endIndex; otherCluster++)
+		for (int otherCluster = 0; otherCluster < maxSize; otherCluster++)
 		{
 			auto v2 = clusterGravityPointDictionary.find(otherCluster)->second;
 			//they are in range, connect them by their real indexes

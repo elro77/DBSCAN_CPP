@@ -37,7 +37,7 @@ private:
 	static std::vector<double> calculateBValues(const int clusterNumber, std::map<int, int>* clusterPairsDictionary, std::map<int, std::vector<double>>* clusterGravityPointDictionary, std::map<int, std::vector<std::vector<double>>>* clusterDictionaryVectors);
 	static double calcDistance(std::vector<double> p, std::vector<double> q);
 	static double calcADistance(std::vector<double> a, std::vector<double> ac, int clusterSize);
-	static void workFindPair(const int startIndex, const int endIndex, std::map<int, int>* clusterPairs , std::map<int, std::vector<double>> clusterGravityPointDictionary);
+	static void workFindPair(const int startIndex, const int endIndex,const int maxSize, std::map<int, int>* clusterPairs , std::map<int, std::vector<double>> clusterGravityPointDictionary);
 
 };
 

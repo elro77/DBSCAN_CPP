@@ -227,12 +227,12 @@ void AlgorithmDBSCAN::initGraph()
 		{
 			for (std::map<int, std::vector<int>>::iterator iter = connectionMaps[i].begin(); iter != connectionMaps[i].end(); ++iter)
 			{
-				int key = iter->first;
+				int point = iter->first;
 				std::vector<int> connections = iter->second;
 				if (connections.size() >= m_minPts)
 				{
-					m_isInConnetions[key] = true;
-					m_connectionsArray[key] = connections;
+					m_isInConnetions[point] = true;
+					m_connectionsArray[point] = connections;
 				}
 					
 			}
